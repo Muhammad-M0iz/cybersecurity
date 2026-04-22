@@ -4,7 +4,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-# FIX: We give the pipeline permission to create bug tickets (Issues)
 permissions:
   contents: read
   issues: write
@@ -39,8 +38,9 @@ jobs:
       - name: Fix Directory Permissions 
         run: chmod -R 777 .
 
+      # FIX: Bumped to v0.15.0 to use the updated GitHub Artifacts API
       - name: OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.12.0
+        uses: zaproxy/action-baseline@v0.15.0
         with:
           target: 'http://localhost:3000' 
           fail_action: true 
