@@ -4,6 +4,11 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   security-dast-scan:
     runs-on: ubuntu-latest
@@ -25,19 +30,18 @@ jobs:
         run: pnpm install
 
       - name: Build and Start Application in Background
-        # This builds the app and runs it locally inside the GitHub runner
         run: |
           pnpm run build
           pnpm run start & 
-          sleep 10 # Gives the Next.js server 10 seconds to fully boot up
+          sleep 10 
 
+      - name: Fix Directory Permissions 
+        run: chmod -R 777 .
+
+      # FIX: Bumped to v0.15.0 to use the updated GitHub Artifacts API
       - name: OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.12.0
+        uses: zaproxy/action-baseline@v0.15.0
         with:
-          # ZAP attacks the local server we just spun up
           target: 'http://localhost:3000' 
-          # Fails the GitHub Action if it finds vulnerabilities
           fail_action: true 
-          # Generates a report you can show in your presentation
-          rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a'
