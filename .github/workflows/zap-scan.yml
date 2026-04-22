@@ -4,6 +4,12 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# FIX: We give the pipeline permission to create bug tickets (Issues)
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   security-dast-scan:
     runs-on: ubuntu-latest
@@ -30,7 +36,6 @@ jobs:
           pnpm run start & 
           sleep 10 
 
-      # FIX: Grants the ZAP Docker container permission to write reports to the folder
       - name: Fix Directory Permissions 
         run: chmod -R 777 .
 
@@ -39,5 +44,4 @@ jobs:
         with:
           target: 'http://localhost:3000' 
           fail_action: true 
-          # Removed the rules_file_name so it defaults to standard rules
           cmd_options: '-a'
