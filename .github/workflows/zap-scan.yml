@@ -25,19 +25,19 @@ jobs:
         run: pnpm install
 
       - name: Build and Start Application in Background
-        # This builds the app and runs it locally inside the GitHub runner
         run: |
           pnpm run build
           pnpm run start & 
-          sleep 10 # Gives the Next.js server 10 seconds to fully boot up
+          sleep 10 
+
+      # FIX: Grants the ZAP Docker container permission to write reports to the folder
+      - name: Fix Directory Permissions 
+        run: chmod -R 777 .
 
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.12.0
         with:
-          # ZAP attacks the local server we just spun up
           target: 'http://localhost:3000' 
-          # Fails the GitHub Action if it finds vulnerabilities
           fail_action: true 
-          # Generates a report you can show in your presentation
-          rules_file_name: '.zap/rules.tsv'
+          # Removed the rules_file_name so it defaults to standard rules
           cmd_options: '-a'
