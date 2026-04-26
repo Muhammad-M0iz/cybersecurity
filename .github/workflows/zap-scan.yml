@@ -7,7 +7,7 @@ on:
 permissions:
   contents: read
   issues: write
-  pull-requests: write # This is required to post comments on the PR
+  pull-requests: write
 
 jobs:
   security-dast-scan:
@@ -29,10 +29,11 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
+      # FIX: Directly invoke the standard Next.js builder, ignoring Cloudflare
       - name: Build and Start Application in Background
         run: |
-          pnpm run build
-          pnpm run start & 
+          pnpm exec next build
+          pnpm exec next start & 
           sleep 10 
 
       - name: Fix Directory Permissions 
@@ -42,13 +43,12 @@ jobs:
         uses: zaproxy/action-baseline@v0.15.0
         with:
           target: 'http://localhost:3000' 
-          fail_action: true # Keep this TRUE so it blocks the merge on real vulnerabilities
-          rules_file_name: '.zap/rules.tsv' # Points to our new rules file
+          fail_action: true 
+          rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a'
 
-      # NEW STEP: Posts the Markdown report directly to the PR!
       - name: Post ZAP Report to PR
-        if: always() # Ensures it runs even if the ZAP scan fails the build
+        if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
