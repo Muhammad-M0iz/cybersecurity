@@ -3,6 +3,8 @@ const config = {
     override: {
       wrapper: "cloudflare-node",
       converter: "edge",
+      // This is the specific line the Cloudflare validator was looking for
+      proxyExternalRequest: "fetch", 
       incrementalCache: "dummy",
       tagCache: "dummy",
       queue: "dummy",
