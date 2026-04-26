@@ -7,7 +7,7 @@ on:
 permissions:
   contents: read
   issues: write
-  pull-requests: write
+  pull-requests: write # This is required to post comments on the PR
 
 jobs:
   security-dast-scan:
@@ -38,10 +38,20 @@ jobs:
       - name: Fix Directory Permissions 
         run: chmod -R 777 .
 
-      # FIX: Bumped to v0.15.0 to use the updated GitHub Artifacts API
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.15.0
         with:
           target: 'http://localhost:3000' 
-          fail_action: true 
+          fail_action: true # Keep this TRUE so it blocks the merge on real vulnerabilities
+          rules_file_name: '.zap/rules.tsv' # Points to our new rules file
           cmd_options: '-a'
+
+      # NEW STEP: Posts the Markdown report directly to the PR!
+      - name: Post ZAP Report to PR
+        if: always() # Ensures it runs even if the ZAP scan fails the build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -f report_md.md ]; then
+            gh pr comment ${{ github.event.pull_request.number }} --body-file report_md.md
+          fi

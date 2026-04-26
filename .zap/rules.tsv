@@ -1,0 +1,7 @@
+10037	IGNORE	Ignore X-Powered-By
+10049	IGNORE	Ignore Non-Storable Content
+10055	IGNORE	Ignore CSP Fallback
+10094	IGNORE	Ignore Base64 Disclosure
+10109	IGNORE	Ignore Modern Web Application
+90004	IGNORE	Ignore COEP
+90005	IGNORE	Ignore Sec-Fetch-Dest
